@@ -3,6 +3,7 @@
 *   @license GPLv3
 **/
 
+/*
 const base64_chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz+/';
 
 function Base64Array(initsize) {
@@ -61,25 +62,27 @@ Base64Array.prototype.getbits = function (nbits) {
     }
     return val;
 };
+*/
 
 
-/* Save the url to the following structure URL = kortgebyr.dk?{BITS}{ARGUMENT STRING}*/
+/* Save the url to the following structure URL = kortgebyr.dk?{BITS}{ARGUMENT STRING} */
+/*
 function saveurl() {
     let argstr = ''; // The optional arguments string which follows the base64 enc. bits
     let nbits; // the number of bits for the current option
     let optbits; // The bits for the current option
     let bitbuf = new Base64Array(); // The buffer used for containing bits until they are flushed
 
-    /* Loop through the options and construct the url */
+    // Loop through the options and construct the url
     for (let key in opts) {
         const o = opts[key];
 
-        /* Depending on whether dirty bits are used or not, react accordingly */
+        // Depending on whether dirty bits are used or not, react accordingly
         if (o.dirty_bits) {
             nbits = o.dirty_bits;
             optbits = o.get_dirty_bits('url');
             let ret = o.get();
-            /* Create the argument string part if dirty bit is set */
+            // Create the argument string part if dirty bit is set
             if (optbits) {
                 if (ret instanceof Currency) {
                     argstr += ';' + ret.string();
@@ -111,8 +114,8 @@ function loadurl() {
     let bitbuf = new Base64Array(); // The buffer used for containing bits until they are flushed
     let o;
 
-    /* Check if any additional args after the bits and
-    create the arg array if that is the case */
+    // Check if any additional args after the bits and
+    // create the arg array if that is the case
     let nb64chars = querystring.indexOf(';');
     if (nb64chars < 0) {
         nb64chars = querystring.length;
@@ -120,17 +123,17 @@ function loadurl() {
         args = querystring.slice(nb64chars + 1).split(';');
     }
 
-    /* Load the base64 representation of the bits into a base64array type */
+    // Load the base64 representation of the bits into a base64array type
     for (let i = 0; i < nb64chars; i++) {
         if (bitbuf.pushbase64char(querystring[i]) !== 0) {
             return -1;
         }
     }
 
-    /* Loop through the opts set the fields with values loaded from the url */
+    // Loop through the opts set the fields with values loaded from the url
     for (let key in opts) {
         o = opts[key];
-        /* Check if opt has dirty bits, if so load arg */
+        // Check if opt has dirty bits, if so load arg
         if (o.dirty_bits) {
             nbits = o.dirty_bits;
             bitval = bitbuf.getbits(nbits);
@@ -138,7 +141,7 @@ function loadurl() {
                 o.set(args[0]);
                 args.shift();
             }
-            /* Otherwise just load the bits directly */
+            // Otherwise just load the bits directly
         } else if (o.bits) {
             nbits = typeof (o.bits) === 'function' ? o.bits() : o.bits;
             bitval = bitbuf.getbits(nbits);
@@ -146,6 +149,8 @@ function loadurl() {
         } else {
             return;
         }
-        /* Create the argument string part if dirty bit is set */
+        // Create the argument string part if dirty bit is set
     }
 }
+
+*/

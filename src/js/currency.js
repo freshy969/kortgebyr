@@ -136,14 +136,6 @@ Currency.prototype.scale = function (rhs) {
 };
 
 
-
-
-function set_ccode(c) {
-    if (currency_map.hasOwnProperty(c)) {
-        gccode = c;
-    }
-}
-
 function mkcurregex() {
     const arr = [];
     for (let k in currency_map) {
@@ -191,14 +183,13 @@ function getCurrency(currency, action) {
     return a;
 }
 
-function changeCurrency() {
-    $('currency_code').innerHTML = this.value;
-    set_ccode(this.value);
-    build();
-    //save_url();
-}
-
-function setCurrency(k, v) {
-    $(k).value = v.represent();
-    $(k).classList.remove('error');
+function sum() {
+    let sumobj = new Currency(0, 'DKK');
+    for (let i = 0; i < arguments.length; i++) {
+        // Combine costs
+        for (let z in arguments[i]) {
+            sumobj = sumobj.add(arguments[i][z]);
+        }
+    }
+    return sumobj;
 }

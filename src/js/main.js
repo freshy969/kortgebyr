@@ -3,156 +3,44 @@
 *   @license GPLv3
 **/
 
-function $(s) { return document.getElementById(s); }
-
-
-function getInt(elem, action) {
-    if (action === 'init') {
-        elem.addEventListener('input', build, false);
-    }
-
-    const str = elem.value.trim();
-    if (!isNaN(parseFloat(str)) && isFinite(str) &&
-    parseFloat(str) === parseInt(str, 10)) {
-        elem.classList.remove('error');
-        return parseInt(str, 10);
-    }
-    elem.classList.add('error');
-    return null;
-}
-
-function setInt(k, v) {
-    $(k).value = parseInt(v, 10);
-    $(k).classList.remove('error');
-}
-
-function getPercent(k) {
-    const elem = $(k);
-    const str = elem.value.replace('%', '').replace(',', '.').trim();
-    if (!isNaN(parseFloat(str)) && isFinite(str)) {
-        $(k).classList.remove('error');
-        return parseFloat(str);
-    }
-    $(k).classList.add('error');
-    return null;
-}
-
-function setPercent(k, v) {
-    $(k).value = (parseFloat(v) + '%').replace('.', ',');
-    $(k).classList.remove('error');
-}
-
-
-const opts = {
-    cards: {
-        type: 'bits',
-        bits() { return document.getElementsByClassName('ocards').length; },
-        get(action) {
-            // Get all selected payment methods from .ocards
-            const obj = {};
-            const ocards = document.getElementsByClassName('ocards');
-            let bitval = 0;
-            for (let i = 0; i < ocards.length; i++) {
-                const checkbox = ocards[i];
-                if (checkbox.checked) {
-                    obj[checkbox.id] = 1;
-                    if (checkbox.id === 'visa') { obj.mastercard = 1; }
-                    bitval += 1 << i;
-                }
-            }
-            return obj;
-        },
-        set(bitval) {
-            const ocards = document.getElementsByClassName('ocards');
-            for (let i = 0; i < ocards.length; i++) {
-                const checkbox = ocards[i];
-                checkbox.checked = (bitval & (1 << i)) !== 0;
-            }
-        }
-    },
-    features: {
-        type: 'bits',
-        bits() { return document.getElementsByClassName('ofeatures').length; },
-        get(action) {
-            // Get all selected features
-            const obj = {};
-            const ofeatures = document.getElementsByClassName('ofeatures');
-            let bitval = 0;
-            for (let i = 0; i < ofeatures.length; i++) {
-                const checkbox = ofeatures[i];
-                if (checkbox.checked) {
-                    obj[checkbox.id] = 1;
-                    bitval += 1 << i;
-                }
-            }
-            //if (action === 'url') { return bitval; }
-            return obj;
-        },
-        set(bitval) {
-            const ofeatures = document.getElementsByClassName('ofeatures');
-            for (let i = 0; i < ofeatures.length; i++) {
-                const checkbox = ofeatures[i];
-                checkbox.checked = (bitval & (1 << i)) !== 0;
-            }
-        }
-    },
-    // Misc
-    acquirers: {
-        type: 'bits',
-        bits() {
-            let len = $('acquirer').length;
-            let nbits = 0;
-            while (len) {
-                len = len >>> 1;
-                nbits++;
-            }
-            return nbits;
-        },
-        get(action) {
-            // Return the selected acquirers
-            const index = $('acquirer').selectedIndex;
-            if (index) {
-                return [ACQs[0], ACQs[index]];
-            }
-            return ACQs.slice(0);
-        },
-        set(bitval) {
-            if (bitval < $('acquirer').length) { $('acquirer').selectedIndex = bitval; }
-        },
-    },
-    transactions: {
-        type: 'string',
-        dirty_bits: 1,
-        get_dirty_bits() { return +(this.get() !== parseInt($('transactions').defaultValue)); },
-        get(action) { return getInt($('transactions'), action); },
-        set(v) { setInt('transactions', v); }
-    },
-    avgvalue: {
-        type: 'currency',
-        dirty_bits: 1,
-        get_dirty_bits() { return +(!this.get().is_equal_to(_getCurrency($('avgvalue').defaultValue))); },
-        get(action) { return getCurrency('avgvalue', action); },
-        set(v) { setCurrency('avgvalue', _getCurrency(v)); }
-    },
-    currency: {
-        type: 'string',
-        dirty_bits: 1,
-        get_dirty_bits() { return +(this.get() !== $('currency_code_select').options[0].value); },
-        get() { return gccode; },
-        set(v) {
-            const select = $('currency_code_select');
-            for (let i = 0; i < select.length; i++) {
-                if (select.options[i].value === v) {
-                    select.selectedIndex = i;
-                    $('currency_code').innerHTML = v;
-                    break;
-                }
-            }
-            set_ccode(v);
-        }
-    }
+const settings = {
+    currency: 'DKK',
+    transactions: 250,
+    avgvalue: 450,
+    acquirers: ACQs,
+    cards: ['dankort', 'visa', 'mastercard'],
+    features: ['3-D secure'],
+    // TODO: Improve how we distribute trns between acqs/cards.
+    dankortscale: 0.77 // 77% of all trans to Dankort
 };
 
+
+function $(s) {
+    return document.getElementById(s);
+}
+
+function showTooltip() {
+    if (!this.firstElementChild) {
+        const infobox = document.createElement('ul');
+        const obj = this.ttdata;
+        for (let prop in obj) {
+            let costobj = obj[prop];
+            if (typeof costobj === 'function') {
+                costobj = costobj(settings);
+            }
+
+            const li = document.createElement('li');
+            li.textContent = prop + ': ' + costobj.print();
+            infobox.appendChild(li);
+        }
+        this.appendChild(infobox);
+    }
+}
+
+// TODO: Get rid of this
+function changeCurrency() {
+    $('currency_code').textContent = this.value;
+}
 
 // Check if object-x' properties is in object-y.
 function x_has_y(objx, objy) {
@@ -160,28 +48,6 @@ function x_has_y(objx, objy) {
         if (!objx[prop]) { return false; }
     }
     return true;
-}
-
-// To do: Settings skal forenes med opts()
-const Settings = function (action) {
-    //if (action === 'init') { loadurl(); }
-
-    for (let key in opts) {
-        if (key !== 'dirty_bits') { this[key] = opts[key].get(action); }
-    }
-    this.features['3-D secure'] = true;
-};
-
-
-function sum() {
-    let sumobj = new Currency(0, 'DKK');
-    for (let i = 0; i < arguments.length; i++) {
-        // Combine costs
-        for (let z in arguments[i]) {
-            sumobj = sumobj.add(arguments[i][z]);
-        }
-    }
-    return sumobj;
 }
 
 // Find combination of acquirers that support all cards
@@ -219,44 +85,46 @@ function acqcombo(psp, settings) {
     return null;
 }
 
-function showTooltip() {
-    if (!this.firstElementChild) {
-        const infobox = document.createElement('ul');
-        const obj = this.ttdata;
-        for (let prop in obj) {
-            let costobj = obj[prop];
-            if (typeof costobj === 'function') {
-                costobj = costobj(settings);
-            }
 
-            const li = document.createElement('li');
-            li.textContent = prop + ': ' + costobj.print();
-            infobox.appendChild(li);
+function updateSettings() {
+    for (let name in settings) {
+        const elem = this.elements[name];
+        if (!elem) { continue; }
+        if (settings[name].constructor === Array) {
+            settings[name].length = 0; // Reset array
+            for (let i = 0; i < elem.length; i++) {
+                const checkbox = elem[i];
+                if (checkbox.checked) {
+                    settings[name].push(checkbox.value);
+                }
+            }
+        } else {
+            settings[name] = (elem.type === 'number') ? elem.value | 0 : elem.value;
         }
-        this.appendChild(infobox);
     }
+    build();
 }
 
-// Build table
-function build(action) {
-    settings = new Settings(action);
+
+function build() {
     const data = [];
     const tbody = document.createElement('tbody');
     tbody.id = 'tbody';
 
-    // Input validation
-    if (!Object.keys(settings.cards).length) { return false; }
-
-    // Cards
-    const dankortscale = (!settings.cards.visa) ? 1 : (settings.cards.dankort) ? 0.77 : 0;
+    // At least one card selected
+    if (settings.cards.length === 0) { return false; }
 
     // Calculate acquirer costs and sort by Total Costs.
     for (let acq of settings.acquirers) {
-        const cardscale = (acq.name === 'Nets') ? dankortscale : 1 - dankortscale;
+        console.log(acq);
+        const cardscale = (acq.name === 'Nets') ? settings.dankortscale : 1 - settings.dankortscale;
+
         acq.trnfees = acq.fees.trn(settings).scale(settings.transactions).scale(cardscale);
         acq.TC = acq.trnfees.add(acq.fees.monthly);
     }
     settings.acquirers.sort(function (obj1, obj2) { return obj1.TC.dkk() - obj2.TC.dkk(); });
+
+
 
     psploop:
     for (let psp of PSPs) {
@@ -407,10 +275,24 @@ function build(action) {
     $('table').replaceChild(tbody, $('tbody'));
 }
 
-//===========================
-//    Lets build
-//===========================
 
-build('init');
-$('currency_code_select').addEventListener('change', changeCurrency);
-$('form').addEventListener('change', build);
+
+window.onload = function () {
+    //build();
+    // settings2form();
+
+    updateForm(settings);
+
+    const form = $('form');
+    for (let name in obj) {
+        console.log(name);
+
+        //form.elements[name];
+
+
+    }
+
+    form.addEventListener('change', updateSettings);
+    form.addEventListener('keyup', updateSettings);
+    $('currency').addEventListener('change', changeCurrency);
+};
