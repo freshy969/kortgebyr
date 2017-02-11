@@ -1,13 +1,14 @@
 <!DOCTYPE HTML>
 <title>Sammenlign betalingsløsninger - kortgebyr.dk</title>
 <meta name="description" content="Sammenlign priser på online betalingsløsninger. Find den billigste betalingsløsning og udregn det samlede kortgebyr.">
+<link rel="icon" type="image/png" href="/favicon.png?1">
 <link rel="canonical" href="https://kortgebyr.dk">
 <link rel="stylesheet" href="/css/kortgebyr.css?{{ csstoken }}">
 <script src="/js/all.js?{{ jstoken }}" async></script>
 
 <header>
   <form id="form" class="clearfix" autocomplete="off">
-    <nav role="navigation">
+    <nav>
       <a class="logo" href="/">kortgebyr</a>
       <a class="lastUpdate" rel="nofollow" href="https://github.com/ulrikmoe/kortgebyr/commits/master">
         Opdateret d. {{ lastUpdate }}
@@ -20,7 +21,7 @@
       <div class="currency">
         <span id="currency_code">DKK</span>
         <select id="currency" name="currency">
-          <option>DKK</option>
+          <option selected>DKK</option>
           <option>SEK</option>
           <option>NOK</option>
           <option>USD</option>
@@ -32,8 +33,8 @@
     </nav>
     <section class="acquirer_menu">
       <label class="acqlabel"> Indløsning
-        <select name="acquirers" class="acquirer">
-          <option>Billigst mulige</option>
+        <select name="acquirer" class="acquirer">
+          <option value="all" selected>Billigst mulige</option>
           <option value="teller">Teller</option>
           <option value="handelsbanken">Handelsbanken</option>
           <option value="swedbank">Swedbank</option>
@@ -49,24 +50,60 @@
     </section>
 
     <section style="border-left: 1px solid #dfdfdf; border-right: 1px solid #dfdfdf;">
-      <label><input name="transactions" type="number" min="0" class="field"> Transaktioner pr. måned</label>
-      <label><input name="avgvalue" type="number" min="0" class="field"> Gennemsnits ordreværdi</label>
-      <label><input name="features" value="antifraud" type="checkbox" class="ofeatures" /> Svindelkontrol</label>
-      <label><input name="features" value="recurring" type="checkbox" class="ofeatures" /> Abonnementsbetalinger</label>
+      <label>
+        <input name="qty" type="number" min="0" value="200" class="field">
+        Transaktioner pr. måned
+      </label>
+      <label>
+        <input name="avgvalue" type="number" min="0" value="500" class="field">
+        Gennemsnits ordreværdi
+      </label>
+      <label>
+        <input name="features[]" value="antifraud" type="checkbox" class="ofeatures" />
+        Svindelkontrol
+      </label>
+      <label>
+        <input name="features[]" value="recurring" type="checkbox" class="ofeatures" />
+        Abonnementsbetalinger
+      </label>
     </section>
 
     <section style="width:19%; padding-right:0;">
-      <label><input name="cards" value="dankort" type="checkbox" class="ocards" /> Dankort</label>
-      <label><input name="cards" value="visa" type="checkbox" class="ocards" /> Visa / MasterCard</label>
-      <label><input name="cards" value="forbrugsforeningen" type="checkbox" class="ocards" /> Forbrugsforening</label>
-      <label><input name="cards" value="diners" type="checkbox" class="ocards" /> Diners</label>
-      <label><input name="cards" value="amex" type="checkbox" class="ocards" /> American Express</label>
+      <label>
+        <input name="cards[]" value="dankort" type="checkbox" class="ocards" />
+        Dankort
+      </label>
+      <label>
+        <input name="cards[]" value="visa" type="checkbox" class="ocards" checked />
+        Visa / MasterCard
+      </label>
+      <label>
+        <input name="cards[]" value="forbrugsforeningen" type="checkbox" class="ocards" />
+        Forbrugsforening
+      </label>
+      <label>
+        <input name="cards[]" value="diners" type="checkbox" class="ocards" />
+        Diners
+      </label>
+      <label>
+        <input name="cards[]" value="amex" type="checkbox" class="ocards" />
+        American Express
+      </label>
     </section>
 
     <section style="width:17%; padding-right:0; padding-left: 0;">
-      <label><input name="cards" value="jcb" type="checkbox" class="ocards" /> JCB</label>
-      <label><input name="cards" value="unionpay" type="checkbox" class="ocards" /> UnionPay</label>
-      <label><input name="cards" value="mobilepay" type="checkbox" class="ocards" /> MobilePay</label>
+      <label>
+        <input name="cards[]" value="jcb" type="checkbox" class="ocards" />
+        JCB
+      </label>
+      <label>
+        <input name="cards[]" value="unionpay" type="checkbox" class="ocards" />
+        UnionPay
+      </label>
+      <label>
+        <input name="cards[]" value="mobilepay" type="checkbox" class="ocards" />
+        MobilePay
+      </label>
     </section>
   </form>
 </header>
@@ -74,18 +111,18 @@
 <table id="table">
   <thead>
     <tr>
-      <th width="178"><span class="pspth">Betalingsløsning</span></th>
-      <th width="130">Indløsning</th>
-      <th width="146">Betalingsmidler</th>
+      <th class="pspth">Betalingsløsning</th>
+      <th>Indløsning</th>
+      <th class="cardsth">Betalingsmidler</th>
       <th>Oprettelse</th>
       <th>Abonnement</th>
       <th>Transaktions-<br> gebyrer</th>
       <th>
-        <div class="equal right"><p class="icon"></p></div>
+        <div class="equal right"><p class="equal--icon"></p></div>
         Samlet pr. <br> måned
       </th>
       <th style="border-left:0;">
-        <div class="equal left"><p class="icon"></p></div>
+        <div class="equal left"><p class="equal--icon"></p></div>
         Samlet pr. <br> transaktion
       </th>
     </tr>

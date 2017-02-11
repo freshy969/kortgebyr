@@ -1,41 +1,29 @@
+/**
+*   @author Ulrik Moe, Christian Blach, Joakim Sindholt
+*   @license GPLv3
+**/
 
-/* Open Sans */
 @font-face {
-    font-family: Open Sans;
-    font-weight: 300;
-    src: local('Open Sans Light'), local('OpenSans-Light'), url('/font/OS300.woff2') format('woff2'), url('/font/OS300.woff') format('woff');
+    font-family: N;
+    src: url(/font/N400.woff2?{{ fonttoken }}) format('woff2'), url(/font/N400.woff?{{ fonttoken }}) format('woff');
 }
+
 @font-face {
-    font-family: Open Sans;
-    src: local('Open Sans'), local('OpenSans'), url('/font/OS400.woff2') format('woff2'), url('/font/OS400.woff') format('woff');
-}
-@font-face {
-    font-family: Open Sans;
+    font-family: N;
     font-style: italic;
-    src: local('Open Sans Italic'), local('OpenSans-Italic'), url('/font/OS400i.woff2') format('woff2'), url('/font/OS400i.woff') format('woff');
+    src: url(/font/N400i.woff2?{{ fonttoken }}) format('woff2'), url(/font/N400i.woff?{{ fonttoken }}) format('woff');
 }
+
 @font-face {
-    font-family: Open Sans;
-    font-weight: 600;
-    src: local('Open Sans Semibold'), local('OpenSans-Semibold'), url('/font/OS600.woff2') format('woff2'), url('/font/OS600.woff') format('woff');
-}
-@font-face {
-    font-family: Open Sans;
-    font-style: italic;
-    font-weight: 600;
-    src: local('Open Sans Semibold Italic'), local('OpenSans-SemiboldItalic'), url('/font/OS600i.woff2') format('woff2'), url('/font/OS600i.woff') format('woff');
-}
-@font-face {
-    font-family: Open Sans;
-    font-style: normal;
+    font-family: N;
     font-weight: 700;
-    src: local('Open Sans Bold'), local('OpenSans-Bold'), url('/font/OS700.woff2') format('woff2'), url('/font/OS700.woff') format('woff');
+    src: url(/font/N700.woff2?{{ fonttoken }}) format('woff2'), url(/font/N700.woff?{{ fonttoken }}) format('woff');
 }
 
 
 html {
     height: 100%;
-    font: 15px/1.45 open sans, freesans, Helvetica Neue, Arial, sans-serif;
+    font: 15px/1.45 'N', freesans, Helvetica Neue, Arial, sans-serif;
     color: #2b2b2b;
     -ms-text-size-adjust: 100%; // Fix text size adjust after orientation change.
     -webkit-text-size-adjust: 100%; // Fix text size adjust after orientation change.
@@ -49,6 +37,7 @@ body {
     background: #fff;
     min-height: 100vh;
     margin: 0;
+    padding-bottom: 40px;
 }
 
 a {
@@ -91,7 +80,6 @@ h1 {
 h2 {
     margin: 0.2em 0 .2em;
     font-size: 18px;
-    font-weight: 600;
     color: #333;
 }
 
@@ -124,7 +112,6 @@ ul {
     h3 {
         padding: 2px 0 3px;
         color: #dc9e2d;
-        font-weight: 600;
         font-size: 17px;
     }
 }

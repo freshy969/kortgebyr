@@ -21,175 +21,41 @@ const currency_map = {
     GBP: '£'
 };
 
-let gccode = 'DKK';
-
 function Currency(value, code) {
-    //this.code = code;
-    //this.value = value;
-    this.amounts = {};
-    this.amounts[code] = value;
+    this.code = code;
+    this.value = value;
 }
-
 
 Currency.prototype.print = function () {
-    const number = Math.round((this.dkk() * 100) / currency_value[gccode]) / 100;
-    const parts = number.toString().split('.');
-    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-
-    if (parts.length === 2 && parts[1].length === 1) {
-        parts[1] += '0';
+    let value = this.value;
+    if (this.code !== opts.currency) {
+        value = this.dkk() / currency_value[opts.currency]; // Convert currency.
     }
-    return parts.join(',') + ' ' + currency_map[gccode];
+    value = Math.round(value * 100) / 100; // 2 decimals after point
+    value = value.toString().replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return value + ' ' + currency_map[opts.currency];
 };
 
-Currency.prototype.represent = function () {
-    if (this.length() === 1) {
-        for (let code in this.amounts) {
-            return this.amounts[code] + ' ' + code;
-        }
-    }
-    return this.dkk() / currency_value[gccode] + ' ' + gccode; //currency_map[gccode];
-};
-
-Currency.prototype.string = function () {
-    if (this.length() === 1) {
-        for (let code in this.amounts) {
-            return this.amounts[code] + code;
-        }
-    }
-    return this.dkk() / currency_value[gccode] + gccode; //currency_map[gccode];
-};
 
 Currency.prototype.dkk = function () {
-    let sum = 0;
-    for (let code in this.amounts) {
-        if (this.amounts.hasOwnProperty(code) &&
-        currency_value.hasOwnProperty(code)) {
-            sum += currency_value[code] * this.amounts[code];
-        }
+    if (this.code === 'DKK') {
+        return this.value;
     }
-    return sum;
+    return this.value * currency_value[this.code];
 };
 
-/*
-Currency.prototype.add = function (o) {
-    if (this.code !== o.code) { throw 'differentCurrencyCodes'; }
-
-    const ret = this.zero();
-    let carry = 0;
-    let i = currencyDigits;
-    while (i--) {
-        const sum = this.value[i] + o.value[i] + carry;
-        if (sum > 9) {
-            carry = 1;
-            ret.value[i] = sum - 10;
-        }
-        else {
-            carry = 0;
-            ret.value[i] = sum;
-        }
-    }
-    if (carry > 0) { throw 'currencySumOverflow'; }
-    return ret;
-};
-*/
 
 Currency.prototype.add = function (o) {
-    const n = new Currency(0, 'DKK');
-    for (let code in this.amounts) {
-        if (this.amounts.hasOwnProperty(code)) {
-            n.amounts[code] = this.amounts[code];
-        }
+    if (this.code === o.code) {
+        return new Currency(this.value + o.value, this.code);
     }
-
-    for (let code in o.amounts) {
-        if (o.amounts.hasOwnProperty(code)) {
-            if (!n.amounts.hasOwnProperty(code)) {
-                n.amounts[code] = 0;
-            }
-            n.amounts[code] += o.amounts[code];
-        }
-    }
-    return n;
+    const converted = o.dkk() / currency_value[this.code]; // Convert currency
+    return new Currency(this.value + converted, this.code);
 };
 
 
-Currency.prototype.is_equal_to = function (other_currency_object) {
-    for (let code in this.amounts) {
-        if (this.amounts.hasOwnProperty(code)) {
-            if (this.amounts[code] !== other_currency_object.amounts[code]) {
-                return false;
-            }
-        }
-    }
-    return true;
-};
-
-Currency.prototype.scale = function (rhs) {
-    const n = new Currency(0, 'DKK');
-    for (let code in this.amounts) {
-        if (this.amounts.hasOwnProperty(code)) {
-            n.amounts[code] = this.amounts[code] * rhs;
-        }
-    }
-    return n;
+Currency.prototype.scale = function (n) {
+    return new Currency(this.value * n, this.code);
 };
 
 
-function mkcurregex() {
-    const arr = [];
-    for (let k in currency_map) {
-        arr.push(currency_map[k]);
-    }
-    for (let k in currency_value) {
-        arr.push(k);
-    }
-    return RegExp('^ *([0-9][0-9., ]*)(' + arr.join('|') + ')? *$', 'i');
-}
-const curregex = mkcurregex();
-
-function _getCurrency(currency) {
-    const a = currency.match(curregex);
-    if (a === null) { return null; }
-
-    let c = a[2] ? a[2] : currency_map[gccode];
-    if (c.toLowerCase() === currency_map[gccode].toLowerCase()) {
-        /* there are a lot of currencies named kr and we should prefer the kr
-        * that has been selected */
-        c = gccode;
-    } else {
-        /* if that's not what's selected, find the currency */
-        for (let k in currency_map) {
-            if (currency_map[k].toLowerCase() === c.toLowerCase() ||
-            k.toLowerCase() === c.toLowerCase()) {
-                c = k;
-                break;
-            }
-        }
-    }
-    return new Currency(parseFloat(a[1].replace('.', '').replace(',', '.')), c);
-}
-
-function getCurrency(currency, action) {
-
-    if (action === 'init') { $(currency).addEventListener('input', build); }
-
-    const a = _getCurrency($(currency).value);
-    if (a === null) {
-        $(currency).classList.add('error');
-        return null;
-    }
-    $(currency).classList.remove('error');
-    return a;
-}
-
-function sum() {
-    let sumobj = new Currency(0, 'DKK');
-    for (let i = 0; i < arguments.length; i++) {
-        // Combine costs
-        for (let z in arguments[i]) {
-            sumobj = sumobj.add(arguments[i][z]);
-        }
-    }
-    return sumobj;
-}
