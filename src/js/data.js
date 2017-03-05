@@ -716,9 +716,9 @@ let PSPs = [
         acqs: ['nets', 'teller', 'clearhaus', 'elavon', 'handelsbanken', 'swedbank'],
         calc(o) {
             o.trn.push({
-                name: 'Lemon Way',
-                info: '1,2% + 0,18 EUR pr. transaktion',
-                fee: $total.scale(1.2 / 100).add(new Currency(0.18 * $qty, 'EUR'))
+                name: 'Scanpay',
+                info: '0,25 DKK pr. transaktion',
+                fee: new Currency(0.25 * $qty, 'DKK')
             });
         }
     }
